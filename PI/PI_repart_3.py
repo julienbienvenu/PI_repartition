@@ -70,40 +70,67 @@ def choix_n_meilleurs(liste_choix, nb_choix):
 
 def simplification(choix):
 
-    return choix
-
-def affectation_aleatoire(multi):
-    actual_result = 2400 #minimun acceptable
-
-    deja_util = [0 for _ in range(19)]
-
-    model = []
-    model_value = []
-    test = True
+    maximun = [0,0,17,0,18,17,18,18,19,0,19,0,18,0,0,17,0,12,13]
+    choix_opti = []
+    cpt = 1
 
     for i in range(19):
 
-        x = random.randint(0,nb_choix - 1)
-        
-        selec = choix[i][x][1]
-        selec_place = x
-        cpt = 0
-                
-        while (deja_util[selec] != 0 and cpt<nb_choix - 1):
+        if maximun[i] != 0:
+            test = 0
+            for j in range(nb_choix): 
 
-            selec = choix[i][(x+cpt)%nb_choix][1]
-            selec_place = (x+cpt)%nb_choix
-            cpt+=1
-
-        if (cpt<nb_choix - 1):
-            
-            deja_util[selec] = 1
-            model.append(selec + 1)
-            model_value.append(choix[i][selec_place][0]) #note du PI
+                if choix[i][j][0] == maximun[i] and test == 0:                                   
+                    choix_opti.append([choix[i][j]])
+                    test = 1
 
         else :
+
+            choix_opti.append(choix[i])
+
+    return choix_opti
+
+def affectation_aleatoire(multi):
+    actual_result = 2750 #minimun acceptable
+
+    deja_util = [0 for _ in range(19)]
+
+    model = [-1 for i in range(19)]
+    model_value = [-1 for i in range(19)]
+    test = True
+
+    for i in range(19):
+        if (len(choix_opti[i])==1):
             
-            return False
+            model[i] = choix_opti[i][0][1] + 1
+            model_value[i] = choix_opti[i][0][0]
+            deja_util[choix_opti[i][0][1]] = 1
+
+    for i in range(19):
+
+        if model[i] == -1:
+
+            x = random.randint(0,nb_choix - 1)
+            
+            selec = choix[i][x][1]
+            selec_place = x
+            cpt = 0
+                    
+            while (deja_util[selec] != 0 and cpt<nb_choix - 1):
+
+                selec = choix[i][(x+cpt)%nb_choix][1]
+                selec_place = (x+cpt)%nb_choix
+                cpt+=1
+
+            if (cpt<nb_choix - 1):
+                
+                deja_util[selec] = 1
+                model[i]=selec + 1
+                model_value[i] = choix[i][selec_place][0] #note du PI
+
+            else :
+                
+                return False
 
     if test :
         #Calcul du modèle (notes PI)
@@ -129,7 +156,9 @@ def affectation_valeurs(model, prefs):
 nb_choix = 8
 liste_choix = get_list()
 choix = choix_n_meilleurs(liste_choix, nb_choix)
-choix = simplification(choix)
+choix_opti = simplification(choix)
+
+
 
 for _ in range(100):
 
